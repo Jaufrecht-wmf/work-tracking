@@ -17,8 +17,10 @@ These scripts accept private keys either through the environment or the command 
 * Betterworks API access requires an API key provided by technical support.
 * Airtable API keys can be found in your [Airtable Account page](https://airtable.com/account)
 * add these lines to ~/.venv_example_path/bin/activate
-** ```export BETTERWORKS_API_TOKEN=yourtokenhere```
-** ```export AIRTABLE_API_KEY=yourkeyhere```
+```bash
+export BETTERWORKS_API_TOKEN=yourtokenhere
+export AIRTABLE_API_KEY=yourkeyhere
+```
 
 # Usage
 ```
