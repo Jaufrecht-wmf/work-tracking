@@ -4,22 +4,24 @@ Tools for reporting from and updating WMF work tracking systems
 # Installation
 
 ## Create Python environment
+Create a Python 3.6 or higher virtualenv and install necessary libraries via pip.
 
-* Create a Python 3.6 or higher virtualenv with dependencies
-** python3.8 -m venv ~/.venv_example_path
-** source ~/.venv_example_path/bin/activate
-** pip install -r requirements.txt
+```bash
+python3.8 -m venv ~/.venv_example_path
+source ~/.venv_example_path/bin/activate
+pip install -r requirements.txt
+```
 
 ## Configure with private keys
+These scripts accept private keys either through the environment or the command line.  The easiest method is to store them in the script that creates the python virtual environment; if so, **be sure that you are not exposing this information by, for example, storing your virtual envirnoment files in a public code repository.**
 * Betterworks API access requires an API key provided by technical support.
 * Airtable API keys can be found in your [Airtable Account page](https://airtable.com/account)
-
-These scripts accept private keys either through the environment or the command line.  The easiest method is to store them in the script that creates the python virtual environment; if so, **be sure that you are not exposing this information by, for example, storing your virtual envirnoment files in a public code repository.**
 * add these lines to ~/.venv_example_path/bin/activate
-** export BETTERWORKS_API_TOKEN=yourtokenhere
-** export AIRTABLE_API_KEY=yourkeyhere
+** ```export BETTERWORKS_API_TOKEN=yourtokenhere```
+** ```export AIRTABLE_API_KEY=yourkeyhere```
 
 # Usage
+```
 usage: extract.py [-h] [--betterworks_api_token BETTERWORKS_API_TOKEN] [--airtable_api_key AIRTABLE_API_KEY] [--debug]
                   [--output_type {text,json,csv,graphviz}]
                   {bw_user,bw_goal,airtable} [identifier]
@@ -40,4 +42,4 @@ optional arguments:
   --output_type {text,json,csv,graphviz}
                         Output format; pipe to file to save. Text is an ascii-art representation of a tree. JSON is a complete data dump in
                         hierarchical JSON, including all node data. csv is a flattened dump of all nodes, i.e., with parent node for each row,
-                        but WITHOUT full data per node (for now). graphviz is the dot file format.
+                        but WITHOUT full data per node (for now). graphviz is the dot file format.```
