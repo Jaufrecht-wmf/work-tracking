@@ -17,33 +17,25 @@ The extract script depends on API key to identify and authenticate to end points
 
 Betterworks API token are provided by technical support. Airtable API keys can be found in your [Airtable Account page](https://airtable.com/account). 
 
-These scripts accept private keys either through the environment or the command line.  The easiest method is to store them in the script that creates the python virtual environment; if so, **be sure that you are not exposing this information by, for example, storing your virtual envirnoment files in a public code repository.**
-* add these lines to ~/.venv_example_path/bin/activate
+These scripts accept private keys either through the environment or the command line.  The easiest method is to store them in the script that creates the python virtual environment; if so, **be sure that you are not exposing this information by, for example, storing your virtual envirnoment files in a public code repository.** Add these lines to ~/.venv_example_path/bin/activate
 ```bash
 export BETTERWORKS_API_TOKEN=yourtokenhere
 export AIRTABLE_API_KEY=yourkeyhere
 ```
 
 # Usage
-```
-usage: extract.py [-h] [--betterworks_api_token BETTERWORKS_API_TOKEN] [--airtable_api_key AIRTABLE_API_KEY] [--debug]
-                  [--output_type {text,json,csv,graphviz}]
-                  {bw_user,bw_goal,airtable} [identifier]
 
-positional arguments:
-  {bw_user,bw_goal,airtable}
-                        What type of data should be retrieved?
-  identifier            What is the identifier for the type of data? For airtable, use base ID. For bw_goal, provide a BetterWorks Goal ID. For
-                        bw_user, provide an email address or BetterWorks User ID.
+## Get BetterWorks goals tree for a user
+```python extract.py bw_user youremail@wikimedia.org```
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --betterworks_api_token BETTERWORKS_API_TOKEN
-                        BetterWorks API Token. Defaults to environment variable.
-  --airtable_api_key AIRTABLE_API_KEY
-                        Airtable API Key. Defaults to environment variable.
-  --debug               Set true to see additional logging. Also dumps a representation of any created tree to debug.txt.
-  --output_type {text,json,csv,graphviz}
-                        Output format; pipe to file to save. Text is an ascii-art representation of a tree. JSON is a complete data dump in
-                        hierarchical JSON, including all node data. csv is a flattened dump of all nodes, i.e., with parent node for each row,
-                        but WITHOUT full data per node (for now). graphviz is the dot file format.```
+Retrieves all goals (Objectives and Key Results) owned by the user, and all goals that are descendents of those goals.  Descendents includes all direct children, i.e., Key Deliverables that roll up to an Objective, and all alignment relationships created in BetterWorks.
+
+## Get BetterWorks goals tree for a goal
+```python extract.py bw_goal 1234567890```
+
+Retrieves all goals (Objectives and Key Results) that are descendents of the indicated.  Definition of descendent is the same as by user.
+
+## Get Airtable complete Priority tree
+```python extract.py airtable 1234567890```
+
+Retrieves a work breakdown tree combining Priorition, Outcomes, Key Deliverables, OKRs, Projects, and Activities from the WMF Medium-term Plan, Annual Plan, and other planning documents and systems.  Tied to a specific table and field structure.
