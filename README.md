@@ -25,17 +25,33 @@ export AIRTABLE_API_KEY=yourkeyhere
 
 # Usage
 
-## Get BetterWorks goals tree for a user
+## Data Extraction
+
+### Get BetterWorks goals tree for a user
 ```python extract.py bw_user youremail@wikimedia.org```
 
 Retrieves all goals (Objectives and Key Results) owned by the user, and all goals that are descendents of those goals.  Descendents includes all direct children, i.e., Key Deliverables that roll up to an Objective, and all alignment relationships created in BetterWorks.
 
-## Get BetterWorks goals tree for a goal
+### Get BetterWorks goals tree for a goal
 ```python extract.py bw_goal 1234567890```
 
 Retrieves all goals (Objectives and Key Results) that are descendents of the indicated.  Definition of descendent is the same as by user.
 
-## Get Airtable complete Priority tree
+### Get Airtable complete Priority tree
 ```python extract.py airtable 1234567890```
 
 Retrieves a work breakdown tree combining Priorition, Outcomes, Key Deliverables, OKRs, Projects, and Activities from the WMF Medium-term Plan, Annual Plan, and other planning documents and systems.  Tied to a specific table and field structure.
+
+## Data output
+
+### As ASCII tree
+Shows the tree as indented plain text.
+
+### As JSON
+As a JSON file—representing the [treelib](https://treelib.readthedocs.io/en/latest/) data structure—that includes all extracted data.
+
+### As CSV
+A flat list of nodes, with each node naming its parent.
+
+### As GraphViz data
+In the graphviz 'dot' format.
