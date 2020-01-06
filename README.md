@@ -12,10 +12,12 @@ source ~/.venv_example_path/bin/activate
 pip install -r requirements.txt
 ```
 
-## Configure with private keys
+## Configure with private API keys
+The extract script depends on API key to identify and authenticate to end points and get access to data. BetterWorks API access requires an API token specific to a BetterWorks account.  Airtable API access required an API key specific to an Airtable user.
+
+Betterworks API token are provided by technical support. Airtable API keys can be found in your [Airtable Account page](https://airtable.com/account). 
+
 These scripts accept private keys either through the environment or the command line.  The easiest method is to store them in the script that creates the python virtual environment; if so, **be sure that you are not exposing this information by, for example, storing your virtual envirnoment files in a public code repository.**
-* Betterworks API access requires an API key provided by technical support.
-* Airtable API keys can be found in your [Airtable Account page](https://airtable.com/account)
 * add these lines to ~/.venv_example_path/bin/activate
 ```bash
 export BETTERWORKS_API_TOKEN=yourtokenhere
