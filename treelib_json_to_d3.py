@@ -2,6 +2,53 @@ import json
 import argparse
 
 
+
+def up_name():
+    """
+    convert treelib json output, which looks like this
+
+    {"root":
+      {"children": [
+        {"Activity: Build/improve models in response to community demand (ongoing every quarter)":
+          {"data":
+            {"node_type": "Activities"}}},
+        {"Priority: Brand Awareness":
+          {"children": [
+            {"Outcome: B-O2: Clarify and strengthen brand architecture":
+              {"children": [
+                {"KD: B-O2-D1: Brand",
+                {"data":{"node_type": "Projects"}}}
+              ]}
+            }
+          }
+        }
+      }]
+    }
+
+
+    to explicitly named json that d3 hierarchies use
+
+
+
+    {
+     "name": "flare",
+     "children": [
+      {
+       "name": "vis",
+       "children": [
+        {
+         "name": "events",
+          "children": [
+           {"name": "DataEvent", "size": 2200}]
+        }]
+      }]
+    }
+
+
+
+"""
+
+
 def main():
     """
     Convert a treelib json file from extract.py to a d3 hierarchy-style json file.
@@ -23,6 +70,8 @@ def main():
 
     with open(input_filename, 'r') as input_file:
         data = json.load(input_file)
+
+    fixed_data = up_name(data)
 
     breakpoint()
     
