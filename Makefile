@@ -4,5 +4,5 @@ all: dndtree
 
 dndtree:
 	cp dndTree.html target/index.html
-	cp flare.json target/flare.json
+	cp airtable.d3.json target/flare.json
 	cp dndTree.js target/
