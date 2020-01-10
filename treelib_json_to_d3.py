@@ -2,7 +2,7 @@ import json
 import argparse
 
 
-def treelib_to_d3(node):
+def treelib_to_d3(node, trim, max_depth, depth=0):
     """
     Given a dict representing the json dump of a treelib node,
     return a dict of the same node its descendents, formatted
@@ -31,7 +31,11 @@ def treelib_to_d3(node):
     # assume there is only one key/value pair in treelib node, and that
     # the key is the node name, and the value is a dict of its contents
     name = next(iter(node))
-    new_dict = {'name': name}
+    if trim:
+        new_dict = {'name': name[0:29]}
+    else:
+        new_dict = {'name': name}
+
     node_value = node[name]
 
     # assume that the value of the only key of the treelib node as a dict.
@@ -43,13 +47,18 @@ def treelib_to_d3(node):
     # if there is a children key, assume its value is a list of nodes,
     # recurse through them, rebuild them as a list, and move the 'children'/list
     # key/value pair up to the node-level dict
+
     children = node_value.get('children')
+
     if children:
-        child_list = []
-        for child in children:
-            child_node = treelib_to_d3(child)
-            child_list.append(child_node)
-        new_dict['children'] = child_list
+        if max_depth and depth <= max_depth:
+            new_dict['truncated_children': len(children)]
+        else:
+            child_list = []
+            for child in children:
+                child_node = treelib_to_d3(child, trim, depth + 1)
+                child_list.append(child_node)
+                new_dict['children'] = child_list
 
     return new_dict
 
@@ -68,14 +77,24 @@ def main():
                         type=str,
                         help='What is the output filename?')
 
+    parser.add_argument('--trim',
+                        type=int,
+                        help='Limit the node title length to this many characters',
+                        default=30)
+
+    parser.add_argument('--max_depth',
+                        type=int,
+                        help='truncate the tree after this many levels.')
+
     args = vars(parser.parse_args())
 
     input_filename = args.get('input_filename')
     output_filename = args.get('output_filename')
-
+    trim = args.get('trim')
+    max_depth = args.get('max_depth')
     with open(input_filename, 'r') as input_file:
         data = json.load(input_file)
-        output_dict = treelib_to_d3(data)
+        output_dict = treelib_to_d3(data, trim, max_depth)
     file = open(output_filename, 'w')
     file.write(json.dumps(output_dict))
 
