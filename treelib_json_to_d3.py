@@ -1,8 +1,9 @@
-import json
 import argparse
+import json
+import logging
 
 
-def treelib_to_d3(node, trim, max_depth, depth=0):
+def treelib_to_d3(node, trim, max_depth=None, depth=0):
     """
     Given a dict representing the json dump of a treelib node,
     return a dict of the same node its descendents, formatted
@@ -32,9 +33,11 @@ def treelib_to_d3(node, trim, max_depth, depth=0):
     # the key is the node name, and the value is a dict of its contents
     name = next(iter(node))
     if trim:
-        new_dict = {'name': name[0:29]}
+        pretty_name = name[0:29]
     else:
-        new_dict = {'name': name}
+        pretty_name = name
+
+    new_dict = {'name': pretty_name}
 
     node_value = node[name]
 
@@ -49,14 +52,13 @@ def treelib_to_d3(node, trim, max_depth, depth=0):
     # key/value pair up to the node-level dict
 
     children = node_value.get('children')
-
     if children:
-        if max_depth and depth <= max_depth:
-            new_dict['truncated_children': len(children)]
+        if max_depth and depth >= max_depth:
+            new_dict['name'] = f'{pretty_name}: {len(children) * "◼"}'
         else:
             child_list = []
             for child in children:
-                child_node = treelib_to_d3(child, trim, depth + 1)
+                child_node = treelib_to_d3(child, trim, max_depth=max_depth, depth=(depth + 1))
                 child_list.append(child_node)
                 new_dict['children'] = child_list
 
