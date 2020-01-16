@@ -49,9 +49,32 @@ Shows the tree as indented plain text.
 
 ### As JSON
 As a JSON file—representing the [treelib](https://treelib.readthedocs.io/en/latest/) data structure—that includes all extracted data.
+```python extract.py airtable 1234567890 --output_type json > tree123.treelib.json```
 
 ### As CSV
 A flat list of nodes, with each node naming its parent.
 
 ### As GraphViz data
 In the graphviz 'dot' format.
+
+
+## Visualization
+
+### In D3
+Many visualization tools use D3 javascript as a fundamental library in the browser stack.  The hierarchical JSON provided by the treelib library is slightly different from the tree format typically used in hierarchical D3 reports, as exemplified by the flare.json sample file.  The ```treelib_json_to_d3.py``` script converts the output of ```extract.py``` to be ready to load in D3 tools.  It can also shorten the node names and/or truncate the tree at a fixed depth, which can be helpful if the final report does not perform these functions.
+
+#### Preparing the data
+1. Run extract.py to generate json output.  For traceability, name it something like foo.treelib.json.
+2. ```python treelib_json_to_d3.py foo.treelib.json foo.d3.json```
+
+#### Publishing
+D3 reports are viewed in web browsers.  Security issues with javascript may mean that they have to be viewed from a webserver, or even an HTTPS webserver, rather than being loaded from a local file.  If so, quick notes:
+
+1. Set up a local webserver
+1.1. ```sudo apt install nginx``` or apache2
+2. set up file permissions
+2.1. ```sudo usermod -a -G www-data username```  Add the www-data group to the account used to run the extract scripts.  log the affected user account and back in for the group change to take effect.
+2.2. ``` sudo chgrp www-data /var/www/html```  Change the default web data directory to belong to the www-data group.
+2.3. ```sudo chmod g+S /var/www/html``` Modify the default web data directory so that all new files automatically belong to the www-data group.
+3. Edit the Makefile to set up the data extraction, editing, and publication chain
+4. ```make```
