@@ -71,10 +71,10 @@ Many visualization tools use D3 javascript as a fundamental library in the brows
 D3 reports are viewed in web browsers.  Security issues with javascript may mean that they have to be viewed from a webserver, or even an HTTPS webserver, rather than being loaded from a local file.  If so, quick notes:
 
 1. Set up a local webserver
-..1. ```sudo apt install nginx``` or apache2
+   * ```sudo apt install nginx``` or apache2
 2. set up file permissions
-..1. ```sudo usermod -a -G www-data username```  Add the www-data group to the account used to run the extract scripts.  log the affected user account and back in for the group change to take effect.
-..1. ``` sudo chgrp www-data /var/www/html```  Change the default web data directory to belong to the www-data group.
-..1. ```sudo chmod g+S /var/www/html``` Modify the default web data directory so that all new files automatically belong to the www-data group.
+   * ```sudo usermod -a -G www-data username```  Add the www-data group to the account used to run the extract scripts.  log the affected user account and back in for the group change to take effect.
+   * ``` sudo chgrp www-data /var/www/html```  Change the default web data directory to belong to the www-data group.
+   * ```sudo chmod g+S /var/www/html``` Modify the default web data directory so that all new files automatically belong to the www-data group.
 3. Edit the Makefile to set up the data extraction, editing, and publication chain
 4. ```make```
