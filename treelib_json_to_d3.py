@@ -33,7 +33,7 @@ def treelib_to_d3(node, trim, max_depth=None, depth=0):
     # the key is the node name, and the value is a dict of its contents
     name = next(iter(node))
     if trim:
-        pretty_name = name[0:29]
+        pretty_name = name[0:(trim - 1)]
     else:
         pretty_name = name
 
