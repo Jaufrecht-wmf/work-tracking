@@ -1,5 +1,5 @@
 # work-tracking
-Tools for reporting from and updating WMF work tracking systems
+Tools for reporting from and updating WMF work tracking systems.  Implemented Features: Extract goal hierarchy from BetterWorks by person or parent goal; Extract from a specific Airtable Base a complete work breakdown connecting WMF Medium-Term Plan, Annual Plan, intermediate planning docs, and projects and activities; output to CSV, JSON, Graphviz, text.
 
 # Installation
 
