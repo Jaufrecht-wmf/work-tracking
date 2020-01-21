@@ -14,24 +14,30 @@ class Goal(object):
     presentation, so follow that convention here.
     """
 
-    def __init__(self, id, name, parent_id, children, is_key_result=False):
+    def __init__(self, id, name, parent_id, children, owner, start, end, is_key_result=False):
         self.name = name
         self.id = id
         self.parent_id = parent_id
         self.children = children
+        self.owner = owner
+        self.start = start
+        self.end = end
         if is_key_result:
             self.node_type = 'Key Result'
         else:
             self.node_type = 'Objective'
 
     def __repr__(self):
-        return f'{self.id}—{self.name}'
+        return f'{self.name}'
 
     def as_dict(self):
-        return {'name': self.name,
-                'id': self.id,
+        return {'id': self.id,
+                'name': self.name,
+                'node_type': self.node_type,
                 'parent_id': self.parent_id,
-                'node_type': self.node_type}
+                'owner': self.owner,
+                'start': self.start,
+                'end': self.end}
 
 
 class RootedTree(treelib.Tree):
@@ -58,11 +64,9 @@ def get_airtable_table(table):
     url = f'https://api.airtable.com/v0/{base_id}/{table}'
     # Because Airtable truncates any response at 100 items, be
     # ready to handle potential pagination.
-    result_list = []
     expect_more_results = True
+    result_list = []
     params = None
-
-    # TODO: should the outer try really be there?
     while expect_more_results:
         logging.debug(f'making request to {url} with airtable_headers\
         {airtable_headers} and params {params}')
@@ -254,11 +258,17 @@ def get_goal_as_object(goal_id):
     children = results.get('children')
     is_key_result = results.get('is_key_result')
     parent = results.get('parent')
+    try:
+        owner = results['owner']['user']['name']
+    except KeyError:
+        owner = ''
+    start = results.get('start')
+    end = results.get('end')
     if parent:
         parent_id = parent.get('id')
     else:
         parent_id = RootedTree.ROOT_ID
-    goal = Goal(goal_id, goal_name, parent_id, children, is_key_result)
+    goal = Goal(goal_id, goal_name, parent_id, children, owner, start, end, is_key_result)
     return goal
 
 
@@ -396,8 +406,7 @@ def main():
                         tree.  JSON is a complete data dump in
                         hierarchical JSON, including all node data.
                         csv is a flattened dump of all nodes, i.e.,
-                        with parent node for each row, but WITHOUT
-                        full data per node (for now).  graphviz is the
+                        with parent node for each row.  Graphviz is the
                         dot file format.""")
 
     args = vars(parser.parse_args())
@@ -469,7 +478,7 @@ def main():
         import csv
         nodes = result_tree.nodes
         writer = csv.writer(sys.stdout)
-        writer.writerow(['id', 'name', 'node_type', 'parent_id'])
+        writer.writerow(['id', 'name', 'node_type', 'parent_id', 'owner', 'start', 'end'])
         for key in nodes.keys():
             node = nodes[key]
             id = node.identifier
@@ -479,9 +488,15 @@ def main():
             else:
                 parent_id = None
             node_type = None
+            owner = None
+            start = None
+            end = None
             if node.data:
                 node_type = node.data.get('node_type')
-            row = [id, name, node_type, parent_id]
+                owner = node.data.get('owner')
+                start = node.data.get('start')
+                end = node.data.get('end')
+            row = [id, name, node_type, parent_id, owner, start, end]
             writer.writerow(row)
     elif output_type == 'graphviz':
         result_tree.to_graphviz(shape=u'box')
