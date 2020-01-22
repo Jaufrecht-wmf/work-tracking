@@ -100,7 +100,19 @@ def get_airtable_tree(result_tree=RootedTree()):
     next table/level and add all those nodes, et al, seems simpler and
     for Airtable requires no extra API calls.  So let's do that.
     """
-    # TODO: Rename root node name to the base name
+
+    base_name = base_id
+    url = f'https://api.airtable.com/v0/meta/bases'
+    logging.debug(f'making request to {url} with airtable_headers {airtable_headers}')
+    response = requests.get(url, headers=airtable_headers)
+    results = response.json()['bases']
+    if results:
+        breakpoint()
+        # assume that if anything comes back, it is a valid api response and base_id is unique
+        base_dict = [base for base in results if base['id'] in base_id]
+        base_name = base_dict[0]['name']
+    root_node = result_tree.get_node(RootedTree.ROOT_ID)
+    root_node.tag = base_name
 
     ######################################################################
     # Priorities
