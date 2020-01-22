@@ -1,0 +1,16 @@
+SHELL := /bin/bash
+
+all: your_name dndtree
+
+airtable:
+	python extract.py airtable your_airtable_base_id
+
+your_name:
+	python extract.py bw_user your_name --output_type json > your_name.treelib.json
+
+dndtree:
+	# Use the output name flare.json to work directly with d3 examples with no code editing
+	python treelib_json_to_d3.py your_name.treelib.json flare.json --trim 30 --max_depth 3
+	cp dndTree.html /var/www/html/index.html
+	cp flare.json /var/www/html/
+	cp dndTree.js /var/www/html
