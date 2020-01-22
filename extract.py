@@ -107,7 +107,6 @@ def get_airtable_tree(result_tree=RootedTree()):
     response = requests.get(url, headers=airtable_headers)
     results = response.json()['bases']
     if results:
-        breakpoint()
         # assume that if anything comes back, it is a valid api response and base_id is unique
         base_dict = [base for base in results if base['id'] in base_id]
         base_name = base_dict[0]['name']
@@ -257,7 +256,9 @@ def get_airtable_tree(result_tree=RootedTree()):
 
 
 def get_goal_as_object(goal_id):
-    """ Retrieve a single BW goal by ID.  Maybe this should be a class method? """
+    """
+    Retrieve a single BW goal by ID.  Maybe this should be a class method?
+    """
     url = f'https://app.betterworks.com/api/v1/goals/{goal_id}/'
     try:
         response = requests.get(url, headers=betterworks_headers)
@@ -336,7 +337,6 @@ def get_goals_for_user(user_id, result_tree=RootedTree()):
     # ready to handle potential pagination.
     expect_more_results = True
     while expect_more_results:
-        # TODO: should the outer try really be there?
         try:
             logging.debug(f'making request to {url} with betterworks_headers\
             {betterworks_headers} and params {params}')
@@ -361,16 +361,17 @@ def get_goals_for_user(user_id, result_tree=RootedTree()):
 
 def get_bw_user(userstring):
     """
-    Search for user by email or user id, and return tuple of userid and Dict of user
+    Search for user by email or user id, and return tuple of userid and name
     """
     url = f'https://app.betterworks.com/api/v1/users/{userstring}'
     try:
         response = requests.get(url, headers=betterworks_headers)
         results = response.json()
+        name = results.get('name')
         id = results.get('id')
     except Exception as e:
         raise Exception(f'User Search query failed with {e}')
-    return id, response
+    return id, name
 
 
 def main():
@@ -470,10 +471,15 @@ def main():
                 'An identifier must be specified in the command line.'  # NOQA
             )
         if fetch_type == 'bw_user':
-            user_id, user = get_bw_user(identifier)
+            user_id, user_name = get_bw_user(identifier)
             result_tree = get_goals_for_user(user_id)
+            root_node = result_tree.get_node(RootedTree.ROOT_ID)
+            root_node.tag = user_name
+
         else:  # assume retrieval by goal ID
             result_tree = get_goal_as_tree(identifier)
+            root_node = result_tree.get_node(RootedTree.ROOT_ID)
+            root_node.tag = identifier
 
     ######################################################################
     # Output the data
