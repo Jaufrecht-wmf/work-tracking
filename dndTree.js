@@ -76,6 +76,7 @@ treeJSON = d3.json("flare.json", function(error, treeData) {
     visit(treeData, function(d) {
         totalNodes++;
         maxLabelLength = Math.max(d.name.length, maxLabelLength);
+        d.name += d.children ? '  ' + '◼️'.repeat(d.children.length) : '';
 
     }, function(d) {
         return d.children && d.children.length > 0 ? d.children : null;
@@ -546,5 +547,18 @@ treeJSON = d3.json("flare.json", function(error, treeData) {
 
     // Layout the tree initially and center on the root node.
     update(root);
+
     centerNode(root);
+
+    // squish
+    visit(treeData, function(d) {
+        if (d !== root) {
+        collapse(d);
+        }
+    }, function(d) {
+        return d.children && d.children.length > 0 ? d.children : null;
+    });
+
+    update(root);
+
 });
