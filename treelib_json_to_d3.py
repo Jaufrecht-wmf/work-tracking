@@ -1,9 +1,8 @@
 import argparse
 import json
-import logging
 
 
-def treelib_to_d3(node, trim, max_depth=None, depth=0):
+def treelib_to_d3(node, trim, max_depth=None, depth=0, overload_name=False):
     """
     Given a dict representing the json dump of a treelib node,
     return a dict of the same node its descendents, formatted
@@ -28,7 +27,6 @@ def treelib_to_d3(node, trim, max_depth=None, depth=0):
                                  "children": [{"name": "KD: B-O2-D1: Brand",
                                                "data": {"node_type": "Projects"}}]}]}]}
     """
-
     # assume there is only one key/value pair in treelib node, and that
     # the key is the node name, and the value is a dict of its contents
     name = next(iter(node))
@@ -46,7 +44,14 @@ def treelib_to_d3(node, trim, max_depth=None, depth=0):
     data = node_value.get('data')
     if data:
         new_dict['data'] = data
-
+        if overload_name:
+            owner = data.get('owner', None)
+            node_type = data.get('node_type', None)
+            if node_type:
+                node_short = f'{node_type[0]} '
+            else:
+                node_short = None
+            new_dict['name'] = f'{node_short}[{owner[0:5]}] {pretty_name}'
     # if there is a children key, assume its value is a list of nodes,
     # recurse through them, rebuild them as a list, and move the 'children'/list
     # key/value pair up to the node-level dict
@@ -54,11 +59,15 @@ def treelib_to_d3(node, trim, max_depth=None, depth=0):
     children = node_value.get('children')
     if children:
         if max_depth and depth >= max_depth:
-            new_dict['name'] = f'{pretty_name}: {len(children) * "◼"}'
+            # new_dict['name'] = f'{pretty_name}: {len(children) * "◼"}'
+            new_dict['name'] = f'{pretty_name}'
         else:
             child_list = []
             for child in children:
-                child_node = treelib_to_d3(child, trim, max_depth=max_depth, depth=(depth + 1))
+                child_node = treelib_to_d3(child, trim,
+                                           max_depth=max_depth,
+                                           depth=(depth + 1),
+                                           overload_name=overload_name)
                 child_list.append(child_node)
                 new_dict['children'] = child_list
 
@@ -84,6 +93,11 @@ def main():
                         help='Limit the node title length to this many characters',
                         default=30)
 
+    parser.add_argument('--overload_name',
+                        action='store_true',
+                        help='Put extra info into the name field',
+                        default=30)
+
     parser.add_argument('--max_depth',
                         type=int,
                         help='truncate the tree after this many levels.')
@@ -94,9 +108,13 @@ def main():
     output_filename = args.get('output_filename')
     trim = args.get('trim')
     max_depth = args.get('max_depth')
+    overload_name = args.get('overload_name')
     with open(input_filename, 'r') as input_file:
         data = json.load(input_file)
-        output_dict = treelib_to_d3(data, trim, max_depth)
+        output_dict = treelib_to_d3(data,
+                                    trim=trim,
+                                    max_depth=max_depth,
+                                    overload_name=overload_name)
     file = open(output_filename, 'w')
     file.write(json.dumps(output_dict))
 
