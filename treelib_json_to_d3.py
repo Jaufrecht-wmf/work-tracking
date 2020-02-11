@@ -1,6 +1,5 @@
 import argparse
 import json
-import logging
 
 
 def treelib_to_d3(node, trim, max_depth=None, depth=0):
