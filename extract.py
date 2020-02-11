@@ -390,10 +390,11 @@ def main():
 
     parser.add_argument('identifier',
                         type=str,
-                        nargs='?',  # optional argument
+                        nargs='+',  # required; multiple accepted; list returned.
                         help="""What is the identifier for the type of data?  For airtable,
                         use base ID.  For bw_goal, provide a BetterWorks Goal ID.
-                        For bw_user, provide an email address or BetterWorks User ID.""")
+                        For bw_user, provide an email address, BetterWorks User ID,
+                        or space-delimited list of one or both types.""")
 
     parser.add_argument('--betterworks_api_token',
                         metavar='BETTERWORKS_API_TOKEN',
@@ -445,41 +446,43 @@ def main():
     ######################################################################
     # Fetch the data
     ######################################################################
-    # first, figure out what to retrieve
+
     fetch_type = args.get('type')
     identifier = args.get('identifier')
+    if not identifier:
+        raise Exception(
+            'An identifier must be specified in the command line.'  # NOQA
+        )
 
     if fetch_type == 'airtable':
         if not airtable_api_key:
             raise Exception(
                 'AIRTABLE_API_KEY must be in the environment, or specified in the command line.'  # NOQA
             )
-        if not identifier:
-            raise Exception(
-                'An Airtable base ID must be specified in the command line.'  # NOQA
-            )
         global base_id  # avoid a bunch of passing around base_id
-        base_id = identifier
+        base_id = identifier[0]
         result_tree = get_airtable_tree()
     else:
         if not betterworks_api_token:
             raise Exception(
                 'BETTERWORKS_API_TOKEN must be in the environment, or specified in the command line.'  # NOQA
             )
-        if not identifier:
-            raise Exception(
-                'An identifier must be specified in the command line.'  # NOQA
-            )
+        result_tree = RootedTree()
+        root_node = result_tree.get_node(RootedTree.ROOT_ID)
+        root_node.tag = 'root'
         if fetch_type == 'bw_user':
-            user_id, user_name = get_bw_user(identifier)
-            result_tree = get_goals_for_user(user_id)
-            root_node = result_tree.get_node(RootedTree.ROOT_ID)
-            root_node.tag = user_name
-
+            for user_identifier in identifier:
+                user_id, user_name = get_bw_user(user_identifier)
+                result_tree = get_goals_for_user(user_id, result_tree)
+                if len(identifier) == 1:
+                    root_node = result_tree.get_node(RootedTree.ROOT_ID)
+                    root_node.tag = user_name
         else:  # assume retrieval by goal ID
-            result_tree = get_goal_as_tree(identifier)
-            root_node = result_tree.get_node(RootedTree.ROOT_ID)
-            root_node.tag = identifier
+            for goal_id in identifier:
+                result_tree = get_goal_as_tree(goal_id, result_tree)
+                if len(identifier) == 1:
+                    root_node = result_tree.get_node(RootedTree.ROOT_ID)
+                    root_node.tag = identifier
 
     ######################################################################
     # Output the data
