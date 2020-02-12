@@ -376,8 +376,8 @@ def get_bw_user(userstring):
 
 def main():
     """
-    Retrieve some hierarchical data from WMF's work tracking systems.  Data can be
-    returned in a number of forms.
+    Retrieve some hierarchical data from WMF's work tracking systems.  Save it
+    in a pickled Treelib file.
     """
     ######################################################################
     # Initialize
@@ -408,20 +408,14 @@ def main():
                         help='Airtable API Key.  Defaults to environment variable.',
                         default=os.getenv('AIRTABLE_API_KEY'))
 
+    parser.add_argument('--output_file',
+                        type=str,
+                        help='File name for output',
+                        default='pickle.json')
+
     parser.add_argument('--debug',
                         action='store_true',
-                        help="""Set true to see additional logging.
-                        Also dumps a representation of any created tree to debug.txt.""")
-
-    parser.add_argument('--output_type',
-                        choices=['text', 'json', 'csv', 'graphviz'],
-                        help="""Output format; pipe to file to
-                        save. Text is an ascii-art representation of a
-                        tree.  JSON is a complete data dump in
-                        hierarchical JSON, including all node data.
-                        csv is a flattened dump of all nodes, i.e.,
-                        with parent node for each row.  Graphviz is the
-                        dot file format.""")
+                        help="""Set true to see additional logging.""")
 
     args = vars(parser.parse_args())
 
@@ -433,6 +427,7 @@ def main():
     global betterworks_headers
     betterworks_headers = {'Authorization': f'APIToken {betterworks_api_token}'}
 
+    output_file = args.get('output_file')
     global DEBUG
     DEBUG = args.get('debug')
     if DEBUG:
@@ -441,7 +436,6 @@ def main():
             datefmt='%Y-%m-%d %H:%M:%S %z',
             level=logging.DEBUG,
             stream=sys.stdout)
-    output_type = args.get('output_type', 'text')
 
     ######################################################################
     # Fetch the data
@@ -488,41 +482,10 @@ def main():
     # Output the data
     ######################################################################
 
-    if DEBUG:
-        result_tree.save2file('debug.txt')
-    if not result_tree:
-        print("""No results retrieved.  This would be a great place to read more information about why not.""")  # NOQA
-
-    if output_type == 'json':
-        print(result_tree.to_json(with_data=True))
-    elif output_type == 'csv':
-        import csv
-        nodes = result_tree.nodes
-        writer = csv.writer(sys.stdout)
-        writer.writerow(['id', 'name', 'node_type', 'parent_id', 'owner', 'start', 'end'])
-        for key in nodes.keys():
-            node = nodes[key]
-            id = node.identifier
-            name = node.tag
-            if id != -1:
-                parent_id = result_tree.parent(id).identifier
-            else:
-                parent_id = None
-            node_type = None
-            owner = None
-            start = None
-            end = None
-            if node.data:
-                node_type = node.data.get('node_type')
-                owner = node.data.get('owner')
-                start = node.data.get('start')
-                end = node.data.get('end')
-            row = [id, name, node_type, parent_id, owner, start, end]
-            writer.writerow(row)
-    elif output_type == 'graphviz':
-        result_tree.to_graphviz(shape=u'box')
-    else:
-        result_tree.show()
+    breakpoint()
+    import pickle
+    logging.debug(f'dumping serialized json')
+    pickle.dump(result_tree, open(output_file, 'wb'))
 
 
 if __name__ == '__main__':
